@@ -42,12 +42,10 @@ trait Memcache
     {
         global $app;
         $className = get_called_class();
-        $obj = null;
-        if (!$app->singleton->exist($className)) {
-            $obj = new $className($this->config_name);
+        $obj = $app->singleton->get($className);
+        if (!$obj) {
+            $obj = new $className();
             $app->singleton->put($className, $obj);
-        } else {
-            $obj = $app->singleton->get($className);
         }
         if (isset($args[0]) && is_string($args[0])) {
             $args[0] = $app->config->get('app.key') . ':' . $args[0];

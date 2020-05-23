@@ -1,7 +1,7 @@
 <?php
 namespace Smooler;
 
-class ScriptApp
+class Script
 {
 	function __construct() 
 	{

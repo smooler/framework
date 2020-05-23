@@ -7,12 +7,7 @@ class Singleton
 
 	function get($className) 
     {
-        $singleton = $this->singletons[$className] ?? null;
-        if (!$singleton) {
-            $singleton = new $className;
-            $this->singletons[$className] = $singleton;
-        }
-        return $singleton;
+        return $singleton = $this->singletons[$className];
 	}
 
     function delete($className)

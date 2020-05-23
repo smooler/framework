@@ -1,12 +1,15 @@
 <?php
 namespace Smooler;
 
+use Smooler\Traits\Singleton;
+
 class Controller 
 {
+	use Singleton;
+
 	function handle($controller, $action, $param = []) 
 	{
-		global $app;
-		$obj = $app->singleton->get($controller);
+		$obj = $this->getSingleton($controller);
 		return call_user_func_array(array($obj, $action), $param);
 	}
 }

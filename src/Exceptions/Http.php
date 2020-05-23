@@ -14,12 +14,12 @@ class Http extends Exception
 		$this->message = $message;
 	}
 
-	public function getHttpCode() 
+	final public function getHttpCode() 
 	{
 		return $this->httpCode;
 	}
 
-	public function getMessage() 
+	final public function getMessage() 
 	{
 		return $this->message;
 	}

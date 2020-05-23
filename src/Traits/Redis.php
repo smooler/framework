@@ -16,7 +16,7 @@ trait Redis
                 if (!$redis) {
                     $configs = &$app->config->get('redis.' . $this->config_name);
                     if (!$configs) {
-                        throw new \Exception('error config mongodb');
+                        throw new \Exception('error config redis');
                     }
                     $redis = $app->redis->handle($configs);
                     $app->context->put('redis_' . $this->config_name, $redis);
@@ -30,12 +30,10 @@ trait Redis
     {
         global $app;
         $className = get_called_class();
-        $obj = null;
-        if (!$app->singleton->exist($className)) {
-            $obj = new $className($this->config_name);
+        $obj = $app->singleton->get($className);
+        if (!$obj) {
+            $obj = new $className();
             $app->singleton->put($className, $obj);
-        } else {
-            $obj = $app->singleton->get($className);
         }
         if (isset($args[0]) && is_string($args[0])) {
             $args[0] = $app->config->get('app.key') . ':' . $args[0];

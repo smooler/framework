@@ -2,9 +2,12 @@
 namespace Smooler;
 
 use Smooler\Exceptions\Http;
+use Smooler\Traits\Singleton;
 
 class Route 
 {
+    use Singleton;
+
     protected $resources = ['get', 'post', 'delete', 'put'];
     protected $routes = [
         'get' => [],
@@ -30,22 +33,26 @@ class Route
         $request = $app->context->get('request');
         $method = $request->server["request_method"];
         $method = strtolower($method);
-        $url = $request->server["request_uri"];
-        $url = strtolower(rtrim($url, '/'));
+        $uri = $request->server["request_uri"];
+        $uri = strtolower(rtrim($uri, '/'));
         if (!isset($this->routes[$method])) {
             throw new Http(404, 'not_found');
         }
         $res = [];
         $params = [];
-        if (isset($this->routes[$method][$url])) {
-            $res = $this->routes[$method][$url];
+        if (isset($this->routes[$method][$uri])) {
+            $res = $this->routes[$method][$uri];
         } else {
             foreach ($this->routes[$method] as $key => $value) {
                 $status = strpos($key, '{');
                 if (false === $status) {
                     continue;
                 }
-                $params = $this->matchUrl($key, $url);
+                $status = strpos($key, '}');
+                if (false === $status) {
+                    continue;
+                }
+                $params = $this->matchUri($key, $uri);
                 if (is_array($params)) {
                     $res = $value;
                     break;
@@ -58,9 +65,12 @@ class Route
         if (!empty($res['middlewares'])) {
             global $app;
             foreach ($res['middlewares'] as $value) {
-                $middlewareRes = $app->middleware->getMiddlewareIoc($value)->handle($request);
-                if (isset($middlewareRes['error'])) {
-                    return $middlewareRes;
+                $middlewareClassName = $app->routeMiddlewares[$value] ?? null;
+                if ($middlewareClassName) {
+                    $middlewareRes = $this->getSingleton($middlewareClassName)->handle();
+                    if (isset($middlewareRes['error'])) {
+                        return $middlewareRes;
+                    }
                 }
             }
         }
@@ -71,10 +81,10 @@ class Route
         ];
     }
 
-    function matchUrl($route, $url) 
+    function matchUri($route, $uri) 
     {
         $routeRe = preg_replace('#(\{.+?\})#', '([^/]+?)', $route);
-        preg_match('#^' . $routeRe . '$#', $url, $params);
+        preg_match('#^' . $routeRe . '$#', $uri, $params);
         if (isset($params[0])) {
             unset($params[0]);
             return array_values($params);

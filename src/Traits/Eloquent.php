@@ -334,7 +334,7 @@ trait Eloquent
 
 	public function find(string ...$collumns) 
 	{
-		if ($collumns) {
+		if ($collumns && !in_array('*', $collumns)) {
 			global $app;
 			$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
 			$collumnStr = '';
@@ -380,7 +380,7 @@ trait Eloquent
 
 	public function get(string ...$collumns) 
 	{
-		if ($collumns) {
+		if ($collumns && !in_array('*', $collumns)) {
 			global $app;
 			$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
 			$collumnStr = '';
@@ -670,12 +670,10 @@ trait Eloquent
 	{
 		global $app;
 		$className = get_called_class();
-		$obj = null;
-		if (!$app->singleton->exist($className)) {
-			$obj = new $className($this->config_name);
+		$obj = $app->singleton->get($className);
+		if (!$obj) {
+			$obj = new $className();
 			$app->singleton->put($className, $obj);
-		} else {
-			$obj = $app->singleton->get($className);
 		}
 		return call_user_func_array([$obj, $method], $args);
 	}

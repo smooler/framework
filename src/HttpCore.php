@@ -1,9 +1,11 @@
 <?php
 namespace Smooler;
 
-class HttpApp
+abstract class HttpCore
 {
 	protected $server;
+	protected $routeMiddlewares = [];
+	protected $initMiddlewares = [];
 
 	function __construct() 
 	{
@@ -23,6 +25,8 @@ class HttpApp
 		$this->redis = new Redis();
 	}
 
+	abstract function handleFirstWorkStart();
+
 	function registerServer($server) 
 	{
 		$this->server = $server;
@@ -36,6 +40,17 @@ class HttpApp
 				$this->singleton->clearCache();
 			}
 		);
+		if (0 == $worker_id) {
+			// 第一个进程启动
+			try {
+				$this->handleFirstWorkStart();
+			} catch (\Exception $e) {
+				if ($e instanceof ExitException) {
+					return;
+				}
+				$this->exception->handle($e);
+			}
+		}
     }
 
 	function handleShutdown() 

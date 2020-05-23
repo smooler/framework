@@ -6,7 +6,12 @@ trait Singleton
     protected function getSingleton($className) 
     {
         global $app;
-        return $app->singleton->get($className);
+        $singleton = $app->singleton->get($className);
+        if (!$singleton) {
+            $singleton = new $className;
+            $app->singleton->put($className, $singleton);
+        }
+        return $singleton;
     }
 }
 			

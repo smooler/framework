@@ -3,7 +3,7 @@ namespace Smooler;
 
 use Smooler\Caches\Redis as Redisc;
 
-class WebSocketApp
+abstract class WebSocketCore
 {
 	protected $server;
 	protected $server_id;
@@ -81,6 +81,22 @@ class WebSocketApp
 		$this->redisc = new Redisc('base');
 	}
 
+	abstract function handleFirstWorkStart();
+
+	abstract function handleFirstWorkStart();
+
+	abstract function getChatroomUuids();  
+
+	abstract function handleUserView(); 
+
+	abstract function handleChatroomServerView();
+
+	abstract function getUserUuidByChatToken();
+
+	abstract function getUnreadUserMessageList();
+
+	abstract function getUnreadSystemMessageList();
+
 	function registerServer($server) 
 	{
 		$this->server = $server;
@@ -95,6 +111,7 @@ class WebSocketApp
 			}
 		);
 		if (0 == $worker_id) {
+			// 第一个进程启动
 	        swoole_time_tick(
 	        	$this::SMOOLER_TIME_TICK_ONLINE, 
 	        	function () {
@@ -186,6 +203,15 @@ class WebSocketApp
 	                }
 	            }
 	        });
+
+			try {
+				$this->handleFirstWorkStart();
+			} catch (\Exception $e) {
+				if ($e instanceof ExitException) {
+					return;
+				}
+				$this->exception->handle($e);
+			}
 		}
     }
 
@@ -325,7 +351,15 @@ class WebSocketApp
 				return;
 			}
 			$res = $this->exception->handle($e);
-			$this->responseError($request->fd, 0, $res);
+	        $this->server->push($frame->fd, json_encode([
+	            'response_id' => $data['requset_id'],
+	            'response_type' => RESPONSE_TYPE_ERROR,
+	            'error' => [
+	                'code' => 0,
+	                'message' => $res['message']
+	            ],
+	            'data' => null,
+	        ]));
 		} 
 	}
 
@@ -423,7 +457,15 @@ class WebSocketApp
 				return;
 			}
 			$res = $this->exception->handle($e);
-			$this->responseError($frame->fd, $data['requset_id'], $res);
+	        $this->server->push($frame->fd, json_encode([
+	            'response_id' => $data['requset_id'],
+	            'response_type' => RESPONSE_TYPE_ERROR,
+	            'error' => [
+	                'code' => 0,
+	                'message' => $res['message']
+	            ],
+	            'data' => null,
+	        ]));
 		} 
 	}
 
