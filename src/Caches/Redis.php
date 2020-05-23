@@ -5,17 +5,17 @@ class Redis
 {
 	protected $instance;
 
-	function __construct()
+	function __construct(string $configName)
 	{
         global $app;
-        $redis = $app->context->get('redis_base');
+        $redis = $app->context->get('redis_' . $configName);
         if (!$redis) {
-            $configs = &$app->config->get('redis.base');
+            $configs = &$app->config->get('redis.' . $configName);
             if (!$configs) {
                 throw new \Exception('error config redis');
             }
             $redis = $app->redis->handle($configs);
-            $app->context->put('redis_base', $redis);
+            $app->context->put('redis_' . $configName, $redis);
         }
         $this->instance = $redis;
 	}

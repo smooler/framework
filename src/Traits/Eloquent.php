@@ -133,7 +133,7 @@ trait Eloquent
 		$app->context->delete('mysql_' . get_called_class() . '_group');
 	}
 
-	protected function whereStr(array&$where, boolean $isMaster = false) 
+	protected function whereStr(array &$where, boolean $isMaster = false) 
 	{
 		$whereStr = '';
 		foreach ($where as $value) {
@@ -167,7 +167,7 @@ trait Eloquent
 				default:
 					if (is_string($value[2])) {
 						$value[2] = '"' . $this->escape($value[2], $isMaster) . '"';
-					} elseif (null === $value[2]) {
+					} elseif (is_null($value[2])) {
 						$value[2] = 'null';
 					} elseif (is_array($value[2]) && isset($value[2]['raw']) && is_string($value[2]['raw'])) {
 						$value[2] = $this->escape($value[2]['raw'], $isMaster);

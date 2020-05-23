@@ -78,7 +78,7 @@ class WebSocketApp
 		if (!defined('REQUEST_TYPE_DEPART_CHATROOM')) {
         	throw new \Exception("Error REQUEST_TYPE_DEPART_CHATROOM");
 		}
-		$this->redisc = new Redisc;
+		$this->redisc = new Redisc('base');
 	}
 
 	function registerServer($server) 

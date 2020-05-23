@@ -1,5 +1,5 @@
 <?php
-namespace App\Models;
+namespace Smooler\Models;
 
 use Smooler\Traits\Eloquent;
 
@@ -7,30 +7,17 @@ class DB
 {
     use Eloquent;
 
-    protected $config_name = 'base';
+    protected $config_name;
+    protected $table;
 
-	function __get(string $key) 
+    function __construct(string $configName)
+    {
+    	$this->config_name = $configName;
+    }
+
+	public function table(string $table)
 	{
-		switch ($key) {
-			case 'table':
-				global $app;
-				$table = $app->context->get('mysql_' . $this->config_name . '_table');
-				if (!$table) {
-                    throw new \Exception('error table mysql');
-				}
-				return $table;
-				break;
-			default:
-				return parent::$key;
-				break;
-
-		}
-	}
-
-	protected function table(string $table)
-	{
-		global $app;
-		$app->context->put('mysql_' . get_called_class() . '_table', $table);
+		$this->table = $table;
         return $this;
 	}
 }
