@@ -1,10 +1,8 @@
 <?php
-namespace Core;
+namespace Smooler;
 
-class WebSocket
+class ScriptApp
 {
-	protected $server;
-
 	function __construct() 
 	{
 		$this->context = new Context();
@@ -15,10 +13,5 @@ class WebSocket
 		$this->exception = new Exception();
 		$this->mysql = new Mysql();
 		$this->redis = new Redis();
-	}
-
-	function registerServer($server) 
-	{
-		$this->server = $server;
 	}
 }

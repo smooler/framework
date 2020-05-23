@@ -9,10 +9,7 @@ trait Eloquent
 {
 	protected $config_name;
 
-	protected function __construct(string $configName)
-	{
-		$this->config_name = $configName;
-	}
+	protected function __construct(){}
 
 	function __get(string $key) 
 	{

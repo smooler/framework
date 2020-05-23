@@ -5,10 +5,7 @@ trait Mongodb
 {
     protected $config_name;
 
-    protected function __construct($configName)
-    {
-        $this->config_name = $configName;
-    }
+    protected function __construct(){}
 
     function __get($key) 
     {
