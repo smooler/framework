@@ -8,7 +8,7 @@ class Config
 	function __construct() 
 	{
 		global $app;
-        $routepath = __DIR__ . '/../../config/';
+        $routepath = BASE_DIR . '/config/';
         $filesnames = scandir($routepath);
         foreach ($filesnames as $file) {
         	if (is_file($routepath . $file)) {

@@ -13,7 +13,7 @@ class Lang
         	throw new \Exception("Error config lang");
         }
 
-        $path = __DIR__ . '/../../lang/' . $lang . '/';
+        $path = BASE_DIR . '/lang/' . $lang . '/';
         $filesnames = scandir($path);
         foreach ($filesnames as $file) {
         	if (is_file($path . $file)) {

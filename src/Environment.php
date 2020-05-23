@@ -7,7 +7,7 @@ class EnvironmentServer
 
 	function __construct () 
 	{
-        $filesnames = __DIR__ . '/../../env.php';
+        $filesnames = BASE_DIR . '/env.php';
         $this->envs = require_once $filesnames;
 	}
 

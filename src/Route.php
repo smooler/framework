@@ -15,7 +15,7 @@ class Route
 
     function __construct() 
     {
-        $routepath = __DIR__ . '/../../route/';
+        $routepath = BASE_DIR . '/route/';
         $filesnames = scandir($routepath);
         foreach ($filesnames as $file) {
             if (is_file($routepath . $file)) {

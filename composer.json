@@ -1,7 +1,9 @@
 {
-    "name": "smooler/httpserver",
-    "description": "smooler http server",
+    "name": "smooler/framework",
+    "description": "smooler framework",
     "keywords": [
+        "smooler",
+        "swoole"
     ],
     "authors": [
         {
@@ -11,7 +13,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=7.3.0",
+        "php": ">=7.0.0",
     },
     "license": "MIT",
     "autoload": {

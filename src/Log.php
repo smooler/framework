@@ -12,7 +12,7 @@ class Log
 
 	function __construct() 
 	{
-        $logpath = __DIR__ . '/../../storage/logs/';
+        $logpath = BASE_DIR . '/storage/logs/';
         $this->filePath = $logpath;
 	}
 
