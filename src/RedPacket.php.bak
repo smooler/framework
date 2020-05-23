@@ -1,0 +1,210 @@
+<?php
+namespace Core;
+
+use Swoole\ExitException;
+use App\Repositories\UserRepository;
+use App\Repositories\PrivateMessageRepository;
+use App\Repositories\ChatroomMessageRepository;
+use App\Repositories\ChatroomRepository;
+
+class RedPacket extends Singleton 
+{
+	function __construct() 
+	{
+		$this->context = new Context();
+		$this->environment = new Environment();
+		$this->config = new Config();
+		$this->lang = new Lang();
+		$this->log = new Log();
+		$this->exception = new Exception();
+		$this->mysql = new Mysql();
+		$this->redis = new Redis();
+	}
+
+	function handle() 
+	{
+		try {
+			while (true) {
+		        $time = time();
+		        $mRedPacket = $this->getSingleton(RedPacket::class)
+		        $overRes =  $mRedPacket->get(
+		        	[
+		        		['status', '=', 2],
+		        		['end_time', '<', $time],
+		        	],
+		        	['id', 'user_id', 'type', 'target_id']
+		        );
+		        if ($overRes) {
+		        	$mRedPacketMoney = $this->getSingleton(RedPacketMoney::class)
+		            foreach ($overRes as $key => $value) {
+		                $mRedPacket->begin();
+		                try {
+					        $affectRows =  $mRedPacket->update(
+					        	[
+					        		['id', '=', $value['id']],
+					        		['status', '=', 2],
+					        	],
+					        	[
+					        		'status' => 3
+					        	]
+					        );
+		                    if (!$affectRows) {
+		                        $mRedPacket->rollback();
+		                        continue;
+		                    }
+
+		                    switch ($value['type']) {
+		                        case 1,2:
+		                            $remainMoney = $mRedPacketMoney->sum(
+		                            	[
+							        		['red_packet_id', '=', $value['id']],
+							        		['user_id', 'is', null],
+		                            	],
+		                            	'price'
+		                            );
+		                            if ($remainMoney > 0) {
+		                                // 退款
+		                            }
+		                            break;
+		                        case 3:
+		                            $moneyRes = $mRedPacketMoney->get(
+		                            	[
+							        		['red_packet_id', '=', $value['id']],
+							        		['user_id', 'is', null],
+		                            	],
+		                            	['id', 'price'],
+		                            	[
+		                            		'price' => 'desc'
+		                            	]
+		                            );
+		                            $count = count($moneyRes);
+		                            if ($count) {
+		                                $query = '
+		                                    SELECT  
+		                                        user_id, count(1) as count
+		                                    FROM
+		                                        red_packet_share_info
+		                                    WHERE
+		                                        red_packet_id = '.$value['id'].'
+		                                    GROUP BY
+		                                        user_id
+		                                    ORDER BY 
+		                                        count desc
+		                                    LIMIT 
+		                                        ' .$count. '
+		                                ';
+		                                $infoRes = query($mysql, $query);
+		                                foreach ($moneyRes as $moneyResKey => $moneyResValue) {
+		                                    if (isset($infoRes[$moneyResKey])) {
+					                            $mRedPacketMoney->update(
+					                            	[
+										        		['id', '=', $moneyResValue['id']],
+										        		['user_id', 'is', null],
+					                            	],
+					                            	[
+					                            		'user_id' => $infoRes[$moneyResKey]['user_id'],
+					                            		'get_time' => $time,
+					                            	]
+					                            );
+
+		                                        // 增加余额，增加红包收入记录，增加余额变动，增加流水
+
+		                                        // 推送领取红包成功
+		                                    }
+		                                }
+
+			                            $remainMoney = $mRedPacketMoney->sum(
+			                            	[
+								        		['red_packet_id', '=', $value['id']],
+								        		['user_id', 'is', null],
+			                            	],
+			                            	'price'
+			                            );
+			                            if ($remainMoney > 0) {
+			                                // 退款
+			                            }
+		                            }
+		                            break;
+		                    }
+		                    $mRedPacket->commit();
+		                    // 推送红包结束
+		                } catch (\Exception $e) {
+		                    $mRedPacket->rollback();
+		                    continue;
+		                }
+		            }
+		        }
+
+		        $startRes =  $mRedPacket->get(
+		        	[
+		        		['status', '=', 2],
+		        		['start_time', '>', ($time - 5)],
+		        		['start_time', '<=', $time],
+		        	],
+		        	['id', 'user_id', 'type', 'target_id']
+		        );
+		        if ($startRes) {
+		            foreach ($startRes as $key => $value) {
+		                $lockKey = $app->config->get('define.redis.string_red_packet_start.key');
+		                $lockKey = sprintf($lockKey, $value['id']);
+		                $lockExpire = $app->config->get('define.redis.string_red_packet_start.expire');
+
+		                $success = $redis->setnx($lockKey, 1);
+		                if ($success) {
+		                    $redis->expire($lockKey, $lockExpire);
+		                    $redPacketRes = $rRedPacket->getInfoForShow($value['id']);
+		                    switch ($value['type']) {
+		                    	case 1:
+		                    		$chatroomId = $mRedPacketNormal->value(
+		                    			[
+		                    				['id', '=', $value['target_id']]
+		                    			],
+		                    			'chatroom_id'
+		                    		);
+		                    		$chatroomUuid = $mChatroom->value(
+		                    			[
+		                    				['id', '=', $chatroomId]
+		                    			],
+		                    			'uuid'
+		                    		);
+		                    		// 推送红包开始
+		                    		break;
+		                    	case 2,3:
+		                    		$chatroomUuid = $mChatroom->value(
+		                    			[
+		                    				['user_id', '=', $value['user_id']]
+		                    			],
+		                    			'uuid'
+		                    		);
+		                    		// 推送红包开始
+		                    		break;
+		                    	case 4:
+		                    		$chatroomRes = $mChatroom->get(
+		                    			[
+		                    				['open_status', '=', 1]
+		                    			],
+		                    			'uuid'
+		                    		);
+		                    		if ($chatroomRes) {
+		                    			// 推送红包开始
+		                    			foreach ($chatroomRes as $key => $value) {
+		                    				# code...
+		                    			}
+		                    		}
+		                    		break;
+		                    }
+		                }
+		            }
+		        }
+		        co::sleep(1);
+		    }
+		} catch (\Throwable $e) {
+			if ($e instanceof ExitException) {
+				$this->context->delete();
+				return;
+			}
+
+		} 
+		$this->context->delete();
+	}
+}

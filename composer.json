@@ -1,0 +1,22 @@
+{
+    "name": "smooler/httpserver",
+    "description": "smooler http server",
+    "keywords": [
+    ],
+    "authors": [
+        {
+          "name": "Faith",
+          "email": "343667924@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.3.0",
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+          "Smooler\\": "src/"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "name": "jiqing9006/valid",
+    "description": "PHP接口参数验证小工具，简单实用",
+    "keywords": [
+        "valid",
+        "form",
+        "表单",
+        "validate",
+        "validation",
+        "validator",
+        "api"
+    ],
+    "authors": [
+        {
+          "name": "jiqing9006",
+          "email": "jiqing9006@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.3.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+          "Smooler\\": "src/"
+        }
+    }
+}
