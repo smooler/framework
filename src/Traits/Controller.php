@@ -3,13 +3,13 @@ namespace Smooler\Traits;
 
 trait Controller
 {
-	protected function validate($rules) 
+	final protected function validate($rules) 
 	{
         global $app;
-        $app->validate->handle($rules);
+        $app->validation->handle($rules);
 	}
 
-    protected function data($key = null) 
+    final protected function data($key = null) 
     {
         global $app;
         $data = &$app->context->getData();

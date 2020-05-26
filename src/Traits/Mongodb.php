@@ -7,7 +7,7 @@ trait Mongodb
 
     protected function __construct(){}
 
-    final function __get(string $key) 
+    function __get(string $key) 
     {
         switch ($key) {
             case 'instance':
