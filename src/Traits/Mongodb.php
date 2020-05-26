@@ -20,8 +20,8 @@ trait Mongodb
                     }
                     $mongodb = new StdClass();
                     $mongodb->manager = new \MongoDB\Driver\Manager("mongodb://" . $config['username'] . ':' . $config['password'] . '@' . $configs['host'] . ":" . $configs['port'] . '/' . $configs['database']);
-                    $mongodb->bulk = new MongoDB\Driver\BulkWrite;
-                    $mongodb->write_concern = new MongoDB\Driver\WriteConcern(MongoDB\Driver\WriteConcern::MAJORITY, 1000);
+                    $mongodb->bulk = new \MongoDB\Driver\BulkWrite;
+                    $mongodb->write_concern = new \MongoDB\Driver\WriteConcern(MongoDB\Driver\WriteConcern::MAJORITY, 1000);
                     $app->context->put('mongodb_' . $this->config_name, $mongodb);
                 }
                 return $mongodb;
@@ -46,6 +46,7 @@ trait Mongodb
     function insert(array &$data) 
     {
         $this->instance->bulk->insert($data);
+        return $this;
     }
 
     function update(array &$where, array &$data, boolean $upsert = false) 
@@ -58,6 +59,7 @@ trait Mongodb
                 'upsert' => $upsert
             ]
         );
+        return $this;
     }
 
     function delete(array &$where, boolean $limit = false) 
@@ -68,6 +70,7 @@ trait Mongodb
                 'limit' => $limit
             ]
         );
+        return $this;
     }
 
     function find(array &$filter, array &$options) 
@@ -80,16 +83,27 @@ trait Mongodb
 
     function get(array &$filter, array &$options) 
     {
+        global $app;
+        $db = $app->context->get('mongodb_' . get_called_class() . '_database');
+        $collection = $app->context->get('mongodb_' . get_called_class() . '_collection');
         $query = new MongoDB\Driver\Query($filter, $options);
-        $result = $this->instance->manager->executeQuery($this->database . '.' . $this->collection, $query);
+        $result = $this->instance->manager->executeQuery($db . '.' . $collection, $query);
         $result = json_decode(json_encode($result), true);
         return $result ?? [];
     }
 
     function count(array &$where) 
     {
-        $command = new MongoDB\Driver\Command(['count' => $this->collection, 'query' => $where]);
-        $result = $this->instance->manager->executeCommand($this->database, $command);
+        global $app;
+        $db = $app->context->get('mongodb_' . get_called_class() . '_database');
+        $collection = $app->context->get('mongodb_' . get_called_class() . '_collection');
+        $command = new \MongoDB\Driver\Command(
+            [
+                'count' => $collection, 
+                'query' => $where
+            ]
+        );
+        $result = $this->instance->manager->executeCommand($db, $command);
         $result = $result->toArray();
         $count = 0;
         $result && $count = $result[0]->n;
@@ -98,11 +112,34 @@ trait Mongodb
 
     function write() 
     {
-        return $this->instance->manager->executeBulkWrite($this->database . '.' . $this->collection, $this->bulk, $this->writeConcern);
+        global $app;
+        $db = $app->context->get('mongodb_' . get_called_class() . '_database');
+        $collection = $app->context->get('mongodb_' . get_called_class() . '_collection');
+        return $this->instance->manager->executeBulkWrite($db . '.' . $collection, $this->instance->bulk, $this->instance->write_concern);
     }
 
-    function setIndex() 
+    function createIndexes(array &$indexes) 
     {
+        global $app;
+        $db = $app->context->get('mongodb_' . get_called_class() . '_database');
+        $collection = $app->context->get('mongodb_' . get_called_class() . '_collection');
+        $command = new \MongoDB\Driver\Command(
+            [
+                'createIndexes' => $collection, 
+                'indexes' => $indexes
+            ]
+        );
+        $this->instance->manager->executeCommand($db, $command);
+    }
+
+    function command(string $action, array &$command) 
+    {
+        global $app;
+        $db = $app->context->get('mongodb_' . get_called_class() . '_database');
+        $collection = $app->context->get('mongodb_' . get_called_class() . '_collection');
+        $command[$action] = $collection;
+        $command = new \MongoDB\Driver\Command($command);
+        return $this->instance->manager->executeCommand($db, $command);
     }
 
     function __callStatic($method, $args)

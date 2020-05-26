@@ -561,7 +561,7 @@ trait Eloquent
 		}
 	}
 
-	public function query(string $query, boolean $isMaster = false, boolean $repeat = false) 
+	public function query(string &$query, boolean $isMaster = false, boolean $repeat = false) 
 	{
 		$this->clear();
 		if ($isMaster) {
@@ -569,12 +569,13 @@ trait Eloquent
 		} else {
 			$res = $this->read->query($query);
 		}
+		global $app;
+		$app->context->put('mysql_' . get_called_class() . '_lastSql', $query);
 		if (false === $res) {
 			var_dump($query);
 	        if (2006 == ($isMaster ? $this->write->errno : $this->read->errno) || 2013 == ($isMaster ? $this->write->errno : $this->read->errno)) {
 				var_dump('mysql close');
 				if (!$repeat) {
-					global $app;
 		        	if ($isMaster) {
 		            	$configs = &$app->config->get('mysql.' . $this->config_name . '.write');
 			            $mysql = $app->mysql->handle($configs);
@@ -596,6 +597,12 @@ trait Eloquent
 			throw new Mysql(($isMaster ? $this->write->errno : $this->read->errno) ?? 0, ($isMaster ? $this->write->error : $this->read->error) ?? '未知错误');
 		}
 		return $res;
+	}
+
+	public function lastSql() 
+	{
+		global $app;
+		return $app->context->get('mysql_' . get_called_class() . '_lastSql');
 	}
 
 	public function begin() 
