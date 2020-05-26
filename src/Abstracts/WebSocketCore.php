@@ -133,7 +133,7 @@ abstract class WebSocketCore
 		    );
 
 	        go(function() {
-	            if ($this->redisc->subscribe($this->channel_key)) // 或者使用psubscribe
+	            if ($this->redisc->subscribe([$this->channel_key])) // 或者使用psubscribe
 	            {
 	                while ($msg = $this->redisc->recv()) {
 	                    // msg是一个数组, 包含以下信息

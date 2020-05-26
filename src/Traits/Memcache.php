@@ -38,9 +38,9 @@ trait Memcache
             $obj = new $className();
             $app->singleton->put($className, $obj);
         }
-        if (isset($args[0]) && is_string($args[0])) {
-            $args[0] = $app->config->get('app.key') . ':' . $args[0];
-        }
+        // if (isset($args[0]) && is_string($args[0])) {
+        //     $args[0] = $app->config->get('app.key') . ':' . $args[0];
+        // }
         return call_user_func_array([$obj->instance, $method], $args);
     }
 }
