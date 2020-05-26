@@ -59,9 +59,7 @@ class Route
                 }
             }
         }
-        if (!$res) {
-            throw new Http(404, 'not_found');
-        }
+        !$res && throw new Http(404, 'not_found');
         if (!empty($res['middlewares'])) {
             global $app;
             foreach ($res['middlewares'] as $value) {
