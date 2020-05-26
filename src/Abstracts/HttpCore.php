@@ -33,7 +33,7 @@ abstract class HttpCore
 		$this->middleware = new Middleware();
 		$this->route = new Route();
 		$this->controller = new Controller();
-		$this->validate = new Validation();
+		$this->validation = new Validation();
 		$this->mysql = new Mysql();
 		$this->redis = new Redis();
 	}
