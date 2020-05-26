@@ -5,9 +5,14 @@ class Singleton
 {
     private $singletons;
 
+    function put($className, $obj) 
+    {
+        $this->singletons[$className] = $obj;
+    }
+
 	function get($className) 
     {
-        return $singleton = $this->singletons[$className];
+        return $this->singletons[$className];
 	}
 
     function delete($className)
@@ -18,11 +23,6 @@ class Singleton
     function exist($className) 
     {
         return isset($this->singletons[$className]);
-    }
-
-    function put($className, $obj) 
-    {
-        $this->singletons[$className] = $obj;
     }
 
     function clearCache()

@@ -3,7 +3,7 @@ namespace Smooler;
 
 class Script
 {
-	function __construct() 
+	final function __construct() 
 	{
 		$this->context = new Context();
 		$this->environment = new Environment();

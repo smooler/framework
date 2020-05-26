@@ -7,7 +7,7 @@ trait Memcache
 
     protected function __construct(){}
 
-    function __get($key) 
+    function __get(string $key) 
     {
         switch ($key) {
             case 'instance':
@@ -18,24 +18,15 @@ trait Memcache
                     if (!$configs) {
                         throw new \Exception('error config memcache');
                     }
-                    $memcache = $app->memcache->handle($configs);
+                    $memcache = new Memcache;
+                    foreach ($configs as $value) {
+                        $memcache->addServer($value['host'], $value['port']);
+                    }
                     $app->context->put('memcache_' . $this->config_name, $memcache);
                 }
                 return $memcache;
                 break;
         }
-    }
-
-    function set() 
-    {
-    }
-
-    function get() 
-    {
-    }
-
-    function delete() 
-    {
     }
 
     function __callStatic($method, $args)

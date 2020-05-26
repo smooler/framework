@@ -11,7 +11,8 @@ class EnvironmentServer
         $this->envs = require_once $filesnames;
 	}
 
-	public function get($key, $default = null) {
+	public function get(string $key, $default = null)
+	{
 		return $this->envs[$key] ?? $default;
 	}
 }

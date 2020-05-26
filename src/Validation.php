@@ -14,6 +14,7 @@ class Validation
 	
 	function validate($data, $rules) 
 	{
+		global $app;
 		$invalidation = 0;
 		$message = '';
 		foreach ($rules as $key => $value) {
@@ -21,7 +22,10 @@ class Validation
 			if (!isset($data[$key])) {
 				if (in_array('required', $ruleArr)) {
 					$invalidation = 1;
-					$message = $key . ':不能为空！';
+					$message = $app->lang->get('validation.required'); 
+					if ($message) {
+						$message = sprintf($message, $key);
+					}
 					break;
 				}
 			} else {
@@ -30,41 +34,59 @@ class Validation
 						case 'string':
 							if (!is_string($data[$key])) {
 								$invalidation = 1;
-								$message = $key . ':必须为字符串！';
+								$message = $app->lang->get('validation.string'); 
+								if ($message) {
+									$message = sprintf($message, $key);
+								}
 								break 2;
 							}
 							break;
 						case 'integer':
 							if (!is_int($data[$key])) {
 								$invalidation = 1;
-								$message = $key . ':必须为整形！';
+								$message = $app->lang->get('validation.integer'); 
+								if ($message) {
+									$message = sprintf($message, $key);
+								}
 								break 2;
 							}
 							break;
                         case 'mobile':
                             if (!preg_match("/^1[345789]\d{9}$/", $data[$key])) {
 								$invalidation = 1;
-								$message = $key . ':手机号格式错误！';
+								$message = $app->lang->get('validation.mobile'); 
+								if ($message) {
+									$message = sprintf($message, $key);
+								}
 								break 2;
                             }
                             break;
 						case 'numeric':
 							if (!is_int($data[$key]) || !is_float($data[$key])) {
 								$invalidation = 1;
-								$message = $key . ':必须为数字！';
+								$message = $app->lang->get('validation.numeric'); 
+								if ($message) {
+									$message = sprintf($message, $key);
+								}
 								break 2;
 							}
 							break;
 						case 'array':
 							if (!is_array($data[$key])) {
 								$invalidation = 1;
-								$message = $key . ':必须为数组！';
+								$message = $app->lang->get('validation.array'); 
+								if ($message) {
+									$message = sprintf($message, $key);
+								}
 								break 2;
 							} else {
 								$keys = array_keys($data[$key]);
 								if ($keys != array_keys($keys)) {
 									$invalidation = 1;
-									$message = $key . ':必须为数组！';
+									$message = $app->lang->get('validation.array'); 
+									if ($message) {
+										$message = sprintf($message, $key);
+									}
 									break 2;
 								}
 							}
@@ -72,13 +94,19 @@ class Validation
 						case 'map':
 							if (!is_array($data[$key])) {
 								$invalidation = 1;
-								$message = $key . ':必须为对象！';
+								$message = $app->lang->get('validation.map'); 
+								if ($message) {
+									$message = sprintf($message, $key);
+								}
 								break 2;
 							} else {
 								$keys = array_keys($data[$key]);
 								if ($keys == array_keys($keys)) {
 									$invalidation = 1;
-									$message = $key . ':必须为对象！';
+									$message = $app->lang->get('validation.map'); 
+									if ($message) {
+										$message = sprintf($message, $key);
+									}
 									break 2;
 								}
 							}
@@ -90,14 +118,20 @@ class Validation
 									case 'min':
 										if ($array[1] > mb_strlen($data[$key])) {
 											$invalidation = 1;
-											$message = $key . ':长度不能小于' . $array[1] . '位！';
+											$message = $app->lang->get('validation.min'); 
+											if ($message) {
+												$message = sprintf($message, $key, $array[1]);
+											}
 											break 3;
 										}
 										break;
 									case 'max':
 										if ($array[1] < mb_strlen($data[$key])) {
 											$invalidation = 1;
-											$message = $key . ':长度不能大于' . $array[1] . '位！';
+											$message = $app->lang->get('validation.max'); 
+											if ($message) {
+												$message = sprintf($message, $key, $array[1]);
+											}
 											break 3;
 										}
 										break;

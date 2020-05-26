@@ -43,42 +43,42 @@ trait Eloquent
 		}
 	}
 
-	public function where(array &$where) 
+	final public function where(array &$where) 
 	{
 		global $app;
 		$app->context->put('mysql_' . get_called_class() . '_whereArray', $where);
 		return $this;
 	}
 
-	public function alias(string $alias) 
+	final public function alias(string $alias) 
 	{
 		global $app;
 		$app->context->put('mysql_' . get_called_class() . '_alias', $alias);
 		return $this;
 	}
 
-	public function join(array $join) 
+	final public function join(array $join) 
 	{
 		global $app;
 		$app->context->push('mysql_' . get_called_class() . '_joinArray', ' INNER JOIN ' . $join);
 		return $this;
 	}
 
-	public function leftjoin(array $join) 
+	final public function leftjoin(array $join) 
 	{
 		global $app;
 		$app->context->push('mysql_' . get_called_class() . '_joinArray', ' LEFT JOIN ' . $join);
 		return $this;
 	}
 
-	public function rightjoin(array $join) 
+	final public function rightjoin(array $join) 
 	{
 		global $app;
 		$app->context->push('mysql_' . get_called_class() . '_joinArray', ' RIGHT JOIN ' . $join);
 		return $this;
 	}
 
-	public function on(string $on) 
+	final public function on(string $on) 
 	{
 		global $app;
 		$app->context->put('mysql_' . get_called_class() . '_on', $on);
@@ -334,48 +334,9 @@ trait Eloquent
 
 	public function find(string ...$collumns) 
 	{
-		if ($collumns && !in_array('*', $collumns)) {
-			global $app;
-			$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
-			$collumnStr = '';
-			foreach ($collumns as $value) {
-				if (!$collumnStr) {
-					$collumnStr .= $value;
-				} else {
-					$collumnStr .= ', ' . $value;
-				}
-			}
-			$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-			if ($alias) {
-				$alias = ' ' . $alias;
-			}
-			$joinStr = '';
-			$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
-			$joinArray && $joinStr = implode('', $joinArray);
-			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-			if ($onStr) {
-				$onStr = ' ' . $onStr;
-			}
-			$whereStr = '';
-			$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
-			if ($wehereArray) {
-				$whereStr = $this->whereStr($wehereArray, $isMaster);
-			}
-			if ($whereStr) {
-				$whereStr = ' WHERE ' . $whereStr;
-			}
-			$orderStr = $app->context->get('mysql_' . get_called_class() . '_order');
-			if ($orderStr) {
-				$orderStr = ' ORDER BY ' . $orderStr;
-			}
-			$groupStr = $app->context->get('mysql_' . get_called_class() . '_group');
-			if ($groupStr) {
-				$groupStr = ' GROUP BY ' . $groupStr;
-			}
-			$query = 'SELECT ' . $collumnStr . ' FROM ' . $this->table . $alias . $joinStr . $onStr . $whereStr . $groupStr . $orderStr . ' LIMIT 1';
-			$res = $this->query($query, $isMaster);
-			return $res ? $res[0] : null;
-		}
+		$this->limit(1);
+		$res = $this->get(...$collumns);
+		return $res ? $res[0] : null;
 	}
 
 	public function get(string ...$collumns) 

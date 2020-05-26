@@ -17,7 +17,8 @@ class Config
         }
 	}
 
-	public function get($key, $default = null) {
+	public function get($key, $default = null) 
+	{
 		$keyArr = explode('.', $key);
 		$value = $this->configs;
 		foreach ($keyArr as $val) {
