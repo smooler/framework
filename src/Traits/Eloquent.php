@@ -216,15 +216,13 @@ trait Eloquent
 			$query = 'INSERT INTO ' . $this->table  . ' ';
 			$collumnStr = '';
 			$valueStr = $this->valueStr($data);
-			if (!$valueStr) {
-				throw new Mysql(0, 'sql value string error');
-			}
+			!$valueStr && throw new Mysql(0, 'sql value string error');
 			$query = $query . '(' . $collumnStr . ')' . 'VALUES(' . $valueStr . ')';
-			if ($ignoreDuplicate) {
-				$query .= ' ON DUPLICATE KEY UPDATE created_time = created_time';
-			}
+			$ignoreDuplicate && $query .= ' ON DUPLICATE KEY UPDATE created_time = created_time';
 			$this->query($query, true);
 			return $this->write->affected_rows;
+		} else {
+			throw new Mysql(0, 'sql insert error');
 		}
 	}
 
@@ -234,33 +232,25 @@ trait Eloquent
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
 		if ($wehereArray && $data) {
 			$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-			if ($alias) {
-				$alias = ' ' . $alias;
-			}
+			$alias && $alias = ' ' . $alias;
 			$joinStr = '';
 			$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 			$joinArray && $joinStr = implode('', $joinArray);
 			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-			if ($onStr) {
-				$onStr = ' ' . $onStr;
-			}
+			$onStr && $onStr = ' ' . $onStr;
 			$valueStr = $this->valueStr($data);
-			if (!$valueStr) {
-				throw new Mysql(0, 'sql value string error');
-			}
+			!$valueStr && throw new Mysql(0, 'sql value string error');
 			$whereStr = $this->whereStr($wehereArray, true);
-			if (!$whereStr) {
-				throw new Mysql(0, 'sql where string error');
-			}
+			!$whereStr && throw new Mysql(0, 'sql where string error');
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'UPDATE ' . $this->table . $alias . $joinStr . $onStr . ' SET ' . $valueStr . $whereStr;
-			if ($ignoreDuplicate) {
-				$query .= ' ON DUPLICATE KEY UPDATE created_time = created_time';
-			}
+			$ignoreDuplicate && $query .= ' ON DUPLICATE KEY UPDATE created_time = created_time';
 			$this->query($query, true);
 			return $this->write->affected_rows;
+		} else {
+			throw new Mysql(0, 'sql update error');
 		}
-	}
+	} 
 
 	public function delete() 
 	{
@@ -268,13 +258,13 @@ trait Eloquent
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
 		if ($wehereArray && $data) {
 			$whereStr = $this->whereStr($wehereArray, true);
-			if (!$whereStr) {
-				throw new Mysql(0, 'sql where string error');
-			}
+			!$whereStr && throw new Mysql(0, 'sql where string error');
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'DELETE FROM ' . $this->table . $whereStr;
 			$this->query($query, true);
 			return $this->write->affected_rows;
+		} else {
+			throw new Mysql(0, 'sql delete error');
 		}
 	}
 
@@ -284,24 +274,20 @@ trait Eloquent
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
 		if ($wehereArray) {
 			$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-			if ($alias) {
-				$alias = ' ' . $alias;
-			}
+			$alias && $alias = ' ' . $alias;
 			$joinStr = '';
 			$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 			$joinArray && $joinStr = implode('', $joinArray);
 			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-			if ($onStr) {
-				$onStr = ' ' . $onStr;
-			}
+			$onStr && $onStr = ' ' . $onStr;
 			$whereStr = $this->whereStr($wehereArray, true);
-			if (!$whereStr) {
-				throw new Mysql(0, 'sql where string error');
-			}
+			!$whereStr && throw new Mysql(0, 'sql where string error');
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'UPDATE ' . $this->table . $alias . $joinStr . $onStr . ' SET ' . $collumn . ' = ' . $collumn . ' + ' . $number . $whereStr;
 			$this->query($query, true);
 			return $this->write->affected_rows;
+		} else {
+			throw new Mysql(0, 'sql increase error');
 		}
 	}
 
@@ -311,24 +297,20 @@ trait Eloquent
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
 		if ($wehereArray) {
 			$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-			if ($alias) {
-				$alias = ' ' . $alias;
-			}
+			$alias && $alias = ' ' . $alias;
 			$joinStr = '';
 			$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 			$joinArray && $joinStr = implode('', $joinArray);
 			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-			if ($onStr) {
-				$onStr = ' ' . $onStr;
-			}
+			$onStr && $onStr = ' ' . $onStr;
 			$whereStr = $this->whereStr($wehereArray, true);
-			if (!$whereStr) {
-				throw new Mysql(0, 'sql where string error');
-			}
+			!$whereStr && throw new Mysql(0, 'sql where string error');
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'UPDATE ' . $this->table . $alias . $joinStr . $onStr . ' SET ' . $collumn . ' = ' . $collumn . ' - ' . $number . $whereStr;
 			$this->query($query, true);
 			return $this->write->affected_rows;
+		} else {
+			throw new Mysql(0, 'sql decrease error');
 		}
 	}
 
@@ -353,40 +335,24 @@ trait Eloquent
 				}
 			}
 			$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-			if ($alias) {
-				$alias = ' ' . $alias;
-			}
+			$alias && $alias = ' ' . $alias;
 			$joinStr = '';
 			$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 			$joinArray && $joinStr = implode('', $joinArray);
 			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-			if ($onStr) {
-				$onStr = ' ' . $onStr;
-			}
+			$onStr && $onStr = ' ' . $onStr;
 			$whereStr = '';
 			$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
-			if ($wehereArray) {
-				$whereStr = $this->whereStr($wehereArray, $isMaster);
-			}
-			if ($whereStr) {
-				$whereStr = ' WHERE ' . $whereStr;
-			}
+			$wehereArray && $whereStr = $this->whereStr($wehereArray, $isMaster);
+			$whereStr && $whereStr = ' WHERE ' . $whereStr;
 			$orderStr = $app->context->get('mysql_' . get_called_class() . '_order');
-			if ($orderStr) {
-				$orderStr = ' ORDER BY ' . $orderStr;
-			}
+			$orderStr && $orderStr = ' ORDER BY ' . $orderStr;
 			$groupStr = $app->context->get('mysql_' . get_called_class() . '_group');
-			if ($groupStr) {
-				$groupStr = ' GROUP BY ' . $groupStr;
-			}
+			$groupStr && $groupStr = ' GROUP BY ' . $groupStr;
 			$limitStr = $app->context->get('mysql_' . get_called_class() . '_limit');
-			if ($limitStr) {
-				$limitStr = ' LIMIT ' . $limitStr;
-			}
+			$limitStr && $limitStr = ' LIMIT ' . $limitStr;
 			$offsetStr = $app->context->get('mysql_' . get_called_class() . '_offset');
-			if ($offsetStr) {
-				$offsetStr = ' OFFSET ' . $offsetStr;
-			}
+			$offsetStr && $offsetStr = ' OFFSET ' . $offsetStr;
 			$query = 'SELECT ' . $collumnStr . ' FROM ' . $this->table . $alias . $joinStr . $onStr . $whereStr . $groupStr . $orderStr . $limitStr . $offsetStr;
 			$res = $this->query($query, $isMaster);
 			return $res ? $res : [];
@@ -396,9 +362,7 @@ trait Eloquent
 	public function value(string $collumn) 
 	{
 		$res = $this->find($collumn);
-		if ($res) {
-			return $res[$collumn];
-		}
+		$res && return $res[$collumn];
 	}
 
 	public function count() 
@@ -406,24 +370,16 @@ trait Eloquent
 		global $app;
 		$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
 		$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-		if ($alias) {
-			$alias = ' ' . $alias;
-		}
+		$alias && $alias = ' ' . $alias;
 		$joinStr = '';
 		$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 		$joinArray && $joinStr = implode('', $joinArray);
 		$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-		if ($onStr) {
-			$onStr = ' ' . $onStr;
-		}
+		$onStr && $onStr = ' ' . $onStr;
 		$whereStr = '';
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
-		if ($wehereArray) {
-			$whereStr = $this->whereStr($wehereArray, $isMaster);
-		}
-		if ($whereStr) {
-			$whereStr = ' WHERE ' . $whereStr;
-		}
+		$wehereArray && $whereStr = $this->whereStr($wehereArray, $isMaster);
+		$whereStr && $whereStr = ' WHERE ' . $whereStr;
 		$query = 'SELECT count(1) as count FROM ' . $this->table . $alias . $joinStr . $onStr . $whereStr;
 		$res = $this->query($query, $isMaster);
 		if ($res) {
@@ -438,24 +394,16 @@ trait Eloquent
 		global $app;
 		$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
 		$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-		if ($alias) {
-			$alias = ' ' . $alias;
-		}
+		$alias && $alias = ' ' . $alias;
 		$joinStr = '';
 		$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 		$joinArray && $joinStr = implode('', $joinArray);
 		$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-		if ($onStr) {
-			$onStr = ' ' . $onStr;
-		}
+		$onStr && $onStr = ' ' . $onStr;
 		$whereStr = '';
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
-		if ($wehereArray) {
-			$whereStr = $this->whereStr($wehereArray, $isMaster);
-		}
-		if ($whereStr) {
-			$whereStr = ' WHERE ' . $whereStr;
-		}
+		$wehereArray && $whereStr = $this->whereStr($wehereArray, $isMaster);
+		$whereStr && $whereStr = ' WHERE ' . $whereStr;
 		$query = 'SELECT avg(' . $collumn . ') as avg FROM ' . $this->table . $alias . $joinStr . $onStr . $whereStr;
 		$res = $this->query($query, $isMaster);
 		if ($res) {
@@ -470,24 +418,16 @@ trait Eloquent
 		global $app;
 		$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
 		$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-		if ($alias) {
-			$alias = ' ' . $alias;
-		}
+		$alias && $alias = ' ' . $alias;
 		$joinStr = '';
 		$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 		$joinArray && $joinStr = implode('', $joinArray);
 		$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-		if ($onStr) {
-			$onStr = ' ' . $onStr;
-		}
+		$onStr && $onStr = ' ' . $onStr;
 		$whereStr = '';
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
-		if ($wehereArray) {
-			$whereStr = $this->whereStr($wehereArray, $isMaster);
-		}
-		if ($whereStr) {
-			$whereStr = ' WHERE ' . $whereStr;
-		}
+		$wehereArray && $whereStr = $this->whereStr($wehereArray, $isMaster);
+		$whereStr && $whereStr = ' WHERE ' . $whereStr;
 		$query = 'SELECT min(' . $collumn . ') as min FROM ' . $this->table . $alias . $joinStr . $onStr . $whereStr;
 		$res = $this->query($query, $isMaster);
 		if ($res) {
@@ -502,24 +442,16 @@ trait Eloquent
 		global $app;
 		$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
 		$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-		if ($alias) {
-			$alias = ' ' . $alias;
-		}
+		$alias && $alias = ' ' . $alias;
 		$joinStr = '';
 		$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 		$joinArray && $joinStr = implode('', $joinArray);
 		$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-		if ($onStr) {
-			$onStr = ' ' . $onStr;
-		}
+		$onStr && $onStr = ' ' . $onStr;
 		$whereStr = '';
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
-		if ($wehereArray) {
-			$whereStr = $this->whereStr($wehereArray, $isMaster);
-		}
-		if ($whereStr) {
-			$whereStr = ' WHERE ' . $whereStr;
-		}
+		$wehereArray && $whereStr = $this->whereStr($wehereArray, $isMaster);
+		$whereStr && $whereStr = ' WHERE ' . $whereStr;
 		$query = 'SELECT max(' . $collumn . ') as max FROM ' . $this->table . $alias . $joinStr . $onStr . $whereStr;
 		$res = $this->query($query, $isMaster);
 		if ($res) {
@@ -534,24 +466,16 @@ trait Eloquent
 		global $app;
 		$isMaster = $app->context->get('mysql_' . get_called_class() . '_master');
 		$alias = $app->context->get('mysql_' . get_called_class() . '_alias');
-		if ($alias) {
-			$alias = ' ' . $alias;
-		}
+		$alias && $alias = ' ' . $alias;
 		$joinStr = '';
 		$joinArray = &$app->context->get('mysql_' . get_called_class() . '_joinArray');
 		$joinArray && $joinStr = implode('', $joinArray);
 		$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
-		if ($onStr) {
-			$onStr = ' ' . $onStr;
-		}
+		$onStr && $onStr = ' ' . $onStr;
 		$whereStr = '';
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
-		if ($wehereArray) {
-			$whereStr = $this->whereStr($wehereArray, $isMaster);
-		}
-		if ($whereStr) {
-			$whereStr = ' WHERE ' . $whereStr;
-		}
+		$wehereArray && $whereStr = $this->whereStr($wehereArray, $isMaster);
+		$whereStr && $whereStr = ' WHERE ' . $whereStr;
 		$query = 'SELECT sum(' . $collumn . ') as sum FROM ' . $this->table . $alias . $joinStr . $onStr . $whereStr;
 		$res = $this->query($query, $isMaster);
 		if ($res) {

@@ -27,19 +27,17 @@ class Log
 		    Coroutine::writeFile($filename, $res, FILE_APPEND);
 		});
 		if ('error' == $type) {
-	        $rErrorLog = $this->getSingleton(ErrorLogRepository::class);
-	        $data = [
-	        	'method' => $request->server["request_method"] ?? 'unknown',
-	        	'uri' => $request->server["request_uri"] ?? 'unknown',
-	        	'client_ip' => $request->header['x-forwarded-for'] ?? ($request->header['x-real-ip'] ?? '127.0.0.1');
-	        	'content' => $res,
-	        	'created_time' => $time,
-	        ];
-	        $rErrorLog->insert($data);
 	        $env = $app->config->get('app.env', 'production');
-	        if ('generation' == $env) {
-	        	$sEmail = $this->getSingleton(Email::class);
-	        	$sEmail->sendErrorReport($data);
+	        $taskWorkerNum = $app->config->get('app.task_worker_num');
+	        if ('production' == $env && 0 < $taskWorkerNum) {
+		        $app->server->AsyncTask(
+		            \Smooler\Tasks\Email::class, 
+		            'sendLog', 
+		            [
+		            	'error log',
+		                $res
+		            ]
+		        );
 	        }
 		}
     }  

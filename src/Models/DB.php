@@ -20,4 +20,6 @@ class DB
 		$this->table = $table;
         return $this;
 	}
+
+    protected function __callStatic(){}
 }

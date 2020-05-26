@@ -195,7 +195,30 @@ abstract class HttpCore
 				return;
 			}
 			$res = $this->exception->handle($e);
+			$res = [
+				'error' => 0,
+				'message' => $res['message']
+			];
 	        $this->server->finish($res);
 		} 
 	}
+    
+	final function handleTaskShutdown() 
+	{
+        $error = error_get_last();
+        var_dump($error);
+        switch ($error['type'] ?? null) {
+            case E_ERROR :
+            case E_PARSE :
+            case E_CORE_ERROR :
+            case E_COMPILE_ERROR :
+                $this->log->error($error['message'] . ' ' . $error['file'] . ' ' . $error['line']);
+				$res = [
+					'error' => 0,
+					'message' => $error['message']
+				];
+		        $this->server->finish($res);
+                break;
+        }
+    }
 }

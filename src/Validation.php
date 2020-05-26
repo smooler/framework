@@ -15,13 +15,13 @@ class Validation
 	function validate($data, $rules) 
 	{
 		global $app;
-		$invalidation = 0;
+		$invalidation = false;
 		$message = '';
 		foreach ($rules as $key => $value) {
 			$ruleArr = explode('|', $value);
 			if (!isset($data[$key])) {
 				if (in_array('required', $ruleArr)) {
-					$invalidation = 1;
+					$invalidation = true;
 					$message = $app->lang->get('validation.required'); 
 					if ($message) {
 						$message = sprintf($message, $key);
@@ -33,7 +33,7 @@ class Validation
 					switch ($val) {
 						case 'string':
 							if (!is_string($data[$key])) {
-								$invalidation = 1;
+								$invalidation = true;
 								$message = $app->lang->get('validation.string'); 
 								if ($message) {
 									$message = sprintf($message, $key);
@@ -43,7 +43,7 @@ class Validation
 							break;
 						case 'integer':
 							if (!is_int($data[$key])) {
-								$invalidation = 1;
+								$invalidation = true;
 								$message = $app->lang->get('validation.integer'); 
 								if ($message) {
 									$message = sprintf($message, $key);
@@ -53,7 +53,7 @@ class Validation
 							break;
                         case 'mobile':
                             if (!preg_match("/^1[345789]\d{9}$/", $data[$key])) {
-								$invalidation = 1;
+								$invalidation = true;
 								$message = $app->lang->get('validation.mobile'); 
 								if ($message) {
 									$message = sprintf($message, $key);
@@ -63,7 +63,7 @@ class Validation
                             break;
 						case 'numeric':
 							if (!is_int($data[$key]) || !is_float($data[$key])) {
-								$invalidation = 1;
+								$invalidation = true;
 								$message = $app->lang->get('validation.numeric'); 
 								if ($message) {
 									$message = sprintf($message, $key);
@@ -73,7 +73,7 @@ class Validation
 							break;
 						case 'array':
 							if (!is_array($data[$key])) {
-								$invalidation = 1;
+								$invalidation = true;
 								$message = $app->lang->get('validation.array'); 
 								if ($message) {
 									$message = sprintf($message, $key);
@@ -82,7 +82,7 @@ class Validation
 							} else {
 								$keys = array_keys($data[$key]);
 								if ($keys != array_keys($keys)) {
-									$invalidation = 1;
+									$invalidation = true;
 									$message = $app->lang->get('validation.array'); 
 									if ($message) {
 										$message = sprintf($message, $key);
@@ -93,7 +93,7 @@ class Validation
 							break;
 						case 'map':
 							if (!is_array($data[$key])) {
-								$invalidation = 1;
+								$invalidation = true;
 								$message = $app->lang->get('validation.map'); 
 								if ($message) {
 									$message = sprintf($message, $key);
@@ -102,7 +102,7 @@ class Validation
 							} else {
 								$keys = array_keys($data[$key]);
 								if ($keys == array_keys($keys)) {
-									$invalidation = 1;
+									$invalidation = true;
 									$message = $app->lang->get('validation.map'); 
 									if ($message) {
 										$message = sprintf($message, $key);
@@ -117,7 +117,7 @@ class Validation
 								switch ($array[0]) {
 									case 'min':
 										if ($array[1] > mb_strlen($data[$key])) {
-											$invalidation = 1;
+											$invalidation = true;
 											$message = $app->lang->get('validation.min'); 
 											if ($message) {
 												$message = sprintf($message, $key, $array[1]);
@@ -127,7 +127,7 @@ class Validation
 										break;
 									case 'max':
 										if ($array[1] < mb_strlen($data[$key])) {
-											$invalidation = 1;
+											$invalidation = true;
 											$message = $app->lang->get('validation.max'); 
 											if ($message) {
 												$message = sprintf($message, $key, $array[1]);

@@ -157,7 +157,7 @@ abstract class WebSocketCore
 	                                case 
 	                                	RESPONSE_TYPE_SYSTEM_MESSAGE,
 	                                	RESPONSE_TYPE_USER_MESSAGE,
-	                                	RESPONSE_TYPE_USER_PUSH,
+	                                	RESPONSE_TYPE_USER_PUSH
 	                                	: 
 	                                    if (isset($info['data']['to_user_uuid'])) {
 	                                        $userFdsKey = $this::SMOOLER_REDIS_HASH_WEBSOCKET_SERVER_USER_FDS_KEY;
@@ -184,7 +184,7 @@ abstract class WebSocketCore
 	                                    break;
 	                                case 
 	                                	RESPONSE_TYPE_CHATROOM_MESSAGE,
-	                                	RESPONSE_TYPE_CHATROOM_PUSH,
+	                                	RESPONSE_TYPE_CHATROOM_PUSH
 	                                	:
 	                                    if (isset($info['data']['chatroom_uuid'])) {
 	                                        $chatroomFdsKey = $this::SMOOLER_REDIS_HASH_WEBSOCKET_SERVER_CHATROOM_FDS_KEY;
@@ -272,7 +272,7 @@ abstract class WebSocketCore
 		                    $fdUserTempKey = sprintf($fdUserKey, $serverId, $fd);
 		                    $userUuid = $this->redisc->get($fdUserTempKey);
 		                    if ($userUuid) {
-		                    	$this->handleUserView($chatroomUuid, $time, $userUuid); // 上报用户观看记录
+		                    	$this->handleUserView($chatroomUuid, $time, $userUuid); 
 		                    }
                         }
                     } else {
@@ -282,7 +282,7 @@ abstract class WebSocketCore
             }
             $count = $this->redisc->hlen($chatroomFdsTempKey);
             if ($count) {
-            	$this->handleChatroomServerView($chatroomUuid, $time, $serverId, $count); // 统计直播间观看人数
+            	$this->handleChatroomServerView($chatroomUuid, $time, $serverId, $count); 
             }
         }
 	}
@@ -494,7 +494,7 @@ abstract class WebSocketCore
 			if ($e instanceof \Swoole\ExitException) {
 				return;
 			}
-			$res = $this->exception->handle($e);
+			$this->exception->handle($e);
 		} 
 	}
 
@@ -524,4 +524,56 @@ abstract class WebSocketCore
             'data' => $res['data'] ?? null,
         ]));
 	}
+
+	final function AsyncTask($taskClass, $action, &$param = [], $isWait = false, $timeout = 10) 
+	{
+		$data['task_class'] = $taskClass;
+		$data['action'] = $action;
+		$data['param'] = $param;
+		if ($isWaiting) {
+			return $this->server->taskwait($data, $timeout);
+		} else {
+			return $this->server->task($data);
+		}
+	}
+
+	final function handleTask(&$data = []) 
+	{
+		try {
+		    if (isset($data['task_class']) && isset($data['action'])) {
+            	$obj = $this->singleton->get($data['task_class'])
+		        $res = call_user_func_array([$obj, $data['action']], $data['param'] ?? []);
+		        $this->server->finish($res);
+		    }
+		} catch (\Throwable $e) {
+			if ($e instanceof \Swoole\ExitException) {
+				return;
+			}
+			$res = $this->exception->handle($e);
+			$res = [
+				'error' => 0,
+				'message' => $res['message']
+			];
+	        $this->server->finish($res);
+		} 
+	}
+    
+	final function handleTaskShutdown() 
+	{
+        $error = error_get_last();
+        var_dump($error);
+        switch ($error['type'] ?? null) {
+            case E_ERROR :
+            case E_PARSE :
+            case E_CORE_ERROR :
+            case E_COMPILE_ERROR :
+                $this->log->error($error['message'] . ' ' . $error['file'] . ' ' . $error['line']);
+				$res = [
+					'error' => 0,
+					'message' => $error['message']
+				];
+		        $this->server->finish($res);
+                break;
+        }
+    }
 }
