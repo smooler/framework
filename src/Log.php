@@ -34,7 +34,7 @@ class Log
 		            \Smooler\Tasks\Email::class, 
 		            'sendLog', 
 		            [
-		            	'error log',
+		            	'error_log',
 		                $res
 		            ]
 		        );
