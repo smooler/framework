@@ -216,7 +216,9 @@ trait Eloquent
 			$query = 'INSERT INTO ' . $this->table  . ' ';
 			$collumnStr = '';
 			$valueStr = $this->valueStr($data);
-			!$valueStr && throw new Mysql(0, 'sql value string error');
+			if (!$valueStr) {
+				throw new Mysql(0, 'sql value string error');
+			}
 			$query = $query . '(' . $collumnStr . ')' . 'VALUES(' . $valueStr . ')';
 			$ignoreDuplicate && $query .= ' ON DUPLICATE KEY UPDATE created_time = created_time';
 			$this->query($query, true);
@@ -239,9 +241,13 @@ trait Eloquent
 			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
 			$onStr && $onStr = ' ' . $onStr;
 			$valueStr = $this->valueStr($data);
-			!$valueStr && throw new Mysql(0, 'sql value string error');
+			if (!$valueStr) {
+				throw new Mysql(0, 'sql value string error');
+			}
 			$whereStr = $this->whereStr($wehereArray, true);
-			!$whereStr && throw new Mysql(0, 'sql where string error');
+			if (!$whereStr) {
+				throw new Mysql(0, 'sql where string error');
+			}
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'UPDATE ' . $this->table . $alias . $joinStr . $onStr . ' SET ' . $valueStr . $whereStr;
 			$ignoreDuplicate && $query .= ' ON DUPLICATE KEY UPDATE created_time = created_time';
@@ -258,7 +264,9 @@ trait Eloquent
 		$wehereArray = &$app->context->get('mysql_' . get_called_class() . '_whereArray');
 		if ($wehereArray && $data) {
 			$whereStr = $this->whereStr($wehereArray, true);
-			!$whereStr && throw new Mysql(0, 'sql where string error');
+			if (!$whereStr) {
+				throw new Mysql(0, 'sql where string error');
+			}
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'DELETE FROM ' . $this->table . $whereStr;
 			$this->query($query, true);
@@ -281,7 +289,9 @@ trait Eloquent
 			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
 			$onStr && $onStr = ' ' . $onStr;
 			$whereStr = $this->whereStr($wehereArray, true);
-			!$whereStr && throw new Mysql(0, 'sql where string error');
+			if (!$whereStr) {
+				throw new Mysql(0, 'sql where string error');
+			}
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'UPDATE ' . $this->table . $alias . $joinStr . $onStr . ' SET ' . $collumn . ' = ' . $collumn . ' + ' . $number . $whereStr;
 			$this->query($query, true);
@@ -304,7 +314,9 @@ trait Eloquent
 			$onStr = $app->context->get('mysql_' . get_called_class() . '_on');
 			$onStr && $onStr = ' ' . $onStr;
 			$whereStr = $this->whereStr($wehereArray, true);
-			!$whereStr && throw new Mysql(0, 'sql where string error');
+			if (!$whereStr) {
+				throw new Mysql(0, 'sql where string error');
+			}
 			$whereStr = ' WHERE ' . $whereStr;
 			$query = 'UPDATE ' . $this->table . $alias . $joinStr . $onStr . ' SET ' . $collumn . ' = ' . $collumn . ' - ' . $number . $whereStr;
 			$this->query($query, true);
